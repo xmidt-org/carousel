@@ -1,0 +1,2 @@
+terraform init
+terraform apply --auto-approve -var versionGreen=0.1.0 -var versionGreenCount=2

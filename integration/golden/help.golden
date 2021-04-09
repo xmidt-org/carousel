@@ -1,0 +1,9 @@
+Usage: carousel [--version] [--help] <command> [<args>]
+
+Available commands are:
+    resume     resume transition to a new cluster state
+    rollout    transition to a new cluster state
+    state      Show the current state of the cluster
+    taint      taint a resource in the current cluster
+    version    Show the current carousel version
+

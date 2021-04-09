@@ -1,1 +1,44 @@
----
+# binaryConfig provides the specific configuration for running terraform
+# (Optional): defaults are shown below
+binaryConfig:
+  #  binary determines which terraform binary to run
+  #  (Optional): default terraform
+  binary: "terraform"
+
+  # workingDirectory configures where to run terraform command
+  # (Optional): default is the current directory
+  workingDirectory: "./playground/"
+
+  # args are additional arguments to supply to terraform.
+  # (Optional): defaults to an empty []ValuePair
+  args:
+    - key: "sup"
+      value: "world"
+
+  # privateArgs are arguments that will supplied to the binary via Environment Variables with the Prefix TF_VAR_.
+  # (Optional): defaults to an empty []ValuePair
+  privateArgs:
+
+  # Environment is additional environment variables to give the binary to run on top of the current environment.
+  # (Optional): defaults to an empty []ValuePair
+  environment:
+    - key: "TF_INPUT"
+      value: 0
+#    - key: "TF_LOG"
+#      value: TRACE
+
+# workspace switches the terraform work space
+# (Optional): defaults to the current workspace aka if its a new project default
+workspace: "default"
+
+# rolloutConfig specifies the options for transitioning the cluster to the new state.
+rolloutConfig:
+  # skipFirstN will make it so the cluster never has <N number of nodes in a group
+  # (Optional): default is 0
+  skipFirstN: 0
+  # batchSize configures how many nodes can be batched at once.
+  # Must be greater than 0.
+  # (Optional): default is 1
+  batchSize: 1
+
+

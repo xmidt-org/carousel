@@ -1,0 +1,3 @@
+terraform init
+terraform workspace new simple
+terraform apply --auto-approve -var versionGreen=0.1.0 -var versionBlue=0.10.15 -var versionBlueCount=1 -var versionGreenCount=1

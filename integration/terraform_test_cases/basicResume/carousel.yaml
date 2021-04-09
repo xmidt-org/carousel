@@ -1,0 +1,7 @@
+binaryConfig:
+  binary: "terraform"
+rolloutConfig:
+  skipFirstN: 0
+  batchSize: 1
+
+

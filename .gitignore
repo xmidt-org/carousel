@@ -5,19 +5,33 @@
 *.so
 *.dylib
 
-# Test binary, build with `go test -c`
+# Test binary, built with `go test -c`
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-coverage*
-report.json
+coverage.txt
 
-# Ignore the vendor structure
 *vendor/
 
-# Ignore the various build artifacts
-.ignore
+#Goland
+.idea/
 
-# Vim
-*.swp
+# binaries
+carousel
+
+# linter output
+errors.txt
+
+# outputs
+.ignore/
+
+# Mac specific
+**/.DS_Store
+
+# playground support terraform files
+.terraform
+*tfstate*
+
+# integration tests
+integration/testing_dir
