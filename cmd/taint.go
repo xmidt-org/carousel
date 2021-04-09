@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/xmidt-org/carousel"
 	"fmt"
+	"github.com/xmidt-org/carousel"
 	"strings"
 )
 

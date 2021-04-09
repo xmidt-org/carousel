@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/xmidt-org/carousel"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/kr/pretty"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/xmidt-org/carousel"
 	"os"
 	"os/exec"
 	"path/filepath"

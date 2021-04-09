@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/xmidt-org/carousel"
 	"encoding/json"
 	"fmt"
+	"github.com/xmidt-org/carousel"
 	"strings"
 )
 

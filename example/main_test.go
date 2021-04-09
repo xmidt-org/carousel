@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/xmidt-org/carousel"
 	"github.com/stretchr/testify/assert"
+	"github.com/xmidt-org/carousel"
 	"plugin"
 	"testing"
 )

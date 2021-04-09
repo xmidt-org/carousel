@@ -23,17 +23,16 @@ jobs:
 
       # Run build of the application
       - name: Run build
-        run: go build ./...
+        run: go build -o carousel ./cmd
 
       # Run gofmt on the code
       - name: Run gofmt
-        run: gofmt -d
+        run: make style
 
       # Run testing on the code
       - name: Run testing
         run: |
-          go test -v -race -coverprofile=coverage.txt ./...
-          go test -race -json ./... > report.json
+          make test
           curl -s https://codecov.io/bash | bash
           echo "codecov done"
 

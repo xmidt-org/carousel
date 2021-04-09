@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/xmidt-org/carousel"
 	"errors"
 	"fmt"
 	"github.com/mitchellh/cli"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"github.com/xmidt-org/carousel"
 	"io/ioutil"
 )
 
