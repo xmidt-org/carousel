@@ -51,6 +51,23 @@ jobs:
           name: coverage
           path: coverage.txt
 
+  acceptance:
+    name: Acceptacne Tests
+    runs-on: [ ubuntu-latest ]
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Setup Go
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.16.x' # The Go version to download (if necessary) and use.
+
+      # Run testing on the code
+      - name: Run acceptance testing
+        run: make acceptance
+
   lint:
     strategy:
       matrix:
