@@ -1,6 +1,8 @@
 package main
 
-import "github.com/xmidt-org/carousel"
+import (
+	"github.com/xmidt-org/carousel/model"
+)
 
 // RolloutConfig specifies the options for transitioning the cluster to the new state.
 type RolloutConfig struct {
@@ -16,6 +18,6 @@ type RolloutConfig struct {
 type Config struct {
 	// Workspace the terraform workspace to use. If empty, the current workspace will be used.
 	Workspace     string
-	BinaryConfig  carousel.BinaryConfig
+	BinaryConfig  model.BinaryConfig
 	RolloutConfig RolloutConfig
 }

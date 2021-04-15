@@ -1,38 +1,36 @@
 package carousel
 
-import "github.com/stretchr/testify/mock"
+import (
+	"github.com/stretchr/testify/mock"
+	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/runner"
+)
 
-type MockClusterGraph struct {
+type MockController struct {
 	mock.Mock
 }
 
-func (m *MockClusterGraph) GetResourcesForHost(hostname string) ([]string, error) {
-	args := m.Called(hostname)
-	if resources := args.Get(0); resources != nil {
-		return args.Get(0).([]string), args.Error(1)
-	}
-	return nil, args.Error(1)
+func (m *MockController) SelectWorkspace(workspace string) error {
+	args := m.Called(workspace)
+	return args.Error(0)
 }
 
-type MockClusterGetter struct {
-	mock.Mock
+func (m *MockController) CreateApply(target model.ClusterState, step model.Step) runner.Runnable {
+	args := m.Called(target, step)
+	return args.Get(0).(runner.Runnable)
 }
 
-func (m *MockClusterGetter) GetCluster() (Cluster, error) {
+func (m *MockController) GetCluster() (model.Cluster, error) {
 	args := m.Called()
-	return args.Get(0).(Cluster), args.Error(1)
+	return args.Get(0).(model.Cluster), args.Error(1)
 }
 
-type MockTainter struct {
-	mock.Mock
-}
-
-func (m *MockTainter) TaintResources(resources []string) error {
+func (m *MockController) TaintResources(resources []string) error {
 	args := m.Called(resources)
 	return args.Error(0)
 }
 
-func (m *MockTainter) TaintHost(hostname string) error {
+func (m *MockController) TaintHost(hostname string) error {
 	args := m.Called(hostname)
 	return args.Error(0)
 }

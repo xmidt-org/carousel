@@ -1,6 +1,8 @@
-package carousel
+package model
 
-import "strings"
+import (
+	"strings"
+)
 
 // MultiError is an interface that provides a list of errors.
 type MultiError interface {

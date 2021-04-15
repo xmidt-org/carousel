@@ -3,7 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/xmidt-org/carousel"
+	"github.com/xmidt-org/carousel/iac/terraform-controller"
+	"github.com/xmidt-org/carousel/model"
 	"strings"
 )
 
@@ -44,7 +45,7 @@ func (c *StateCommand) Run(args []string) int {
 	}
 	config := c.Meta.LoadConfig()
 
-	cluster, err := carousel.BuildStateDeterminer(config.BinaryConfig).GetCluster()
+	cluster, err := terraform_controller.BuildStateDeterminer(config.BinaryConfig).GetCluster()
 	if err != nil {
 		c.UI.Error(fmt.Sprintf("Failed to get Cluster state: \n %v", err))
 		return 1
@@ -68,7 +69,7 @@ func (c *StateCommand) Run(args []string) int {
 		}
 	} else {
 		if fullOutput {
-			for _, groupColor := range carousel.ValidColors {
+			for _, groupColor := range model.ValidColors {
 				c.UI.Output(fmt.Sprintf("%s @ %s", groupColor, cluster[groupColor].Version))
 				for _, host := range cluster[groupColor].Hosts {
 					c.UI.Output(fmt.Sprintf("\t%s", host))

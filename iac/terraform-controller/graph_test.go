@@ -1,8 +1,10 @@
-package carousel
+package terraform_controller
 
 import (
 	"errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/xmidt-org/carousel/iac"
+	"github.com/xmidt-org/carousel/runner"
 	"testing"
 )
 
@@ -21,8 +23,8 @@ func TestClusterGraph(t *testing.T) {
 		name              string
 		searchHost        string
 		expectedResources []string
-		staterunner       Runnable
-		graphrunner       Runnable
+		staterunner       runner.Runnable
+		graphrunner       runner.Runnable
 		expectedErr       error
 	}{
 		{
@@ -33,7 +35,7 @@ func TestClusterGraph(t *testing.T) {
 				Name: "testRunner",
 				Data: nil,
 			},
-			expectedErr: errGetClusterFailure,
+			expectedErr: iac.ErrGetClusterFailure,
 		},
 		{
 			name:              "empty_json",
@@ -43,7 +45,7 @@ func TestClusterGraph(t *testing.T) {
 				Name: "testRunner",
 				Data: []byte(`{}`),
 			},
-			expectedErr: errGetClusterFailure,
+			expectedErr: iac.ErrGetClusterFailure,
 		},
 		{
 			name:              "empty_state",

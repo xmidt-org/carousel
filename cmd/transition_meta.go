@@ -6,7 +6,11 @@ import (
 	"fmt"
 	"github.com/spf13/pflag"
 	"github.com/xmidt-org/carousel"
+	"github.com/xmidt-org/carousel/iac"
+	terraform_controller "github.com/xmidt-org/carousel/iac/terraform-controller"
+	"github.com/xmidt-org/carousel/model"
 	"io/ioutil"
+	"os"
 	"plugin"
 )
 
@@ -34,18 +38,18 @@ func (m *TransitionMeta) transitionFlagSet(n string) *pflag.FlagSet {
 	return cmdFlags
 }
 
-func (m *TransitionMeta) getTransitionr() carousel.Transition {
-	config := m.Meta.LoadConfig()
-	transitionConfig := carousel.TerraformTransitionConfig{
-		DryRun:       m.dryRun,
+func (m *TransitionMeta) getController() iac.Controller {
+	m.LoadConfig()
+	transitionConfig := terraform_controller.TerraformTransitionConfig{
 		AttachStdOut: !m.notQuiet,
 		AttachStdErr: true,
-		Args:         config.BinaryConfig.Args,
+		Args:         m.config.BinaryConfig.Args,
 	}
-	clusterGetter := carousel.BuildStateDeterminer(config.BinaryConfig)
-	grapher := carousel.BuildClusterGraphRunner(clusterGetter, config.BinaryConfig)
-	tainter := carousel.BuildTaintHostRunner(grapher, config.BinaryConfig)
 
+	return terraform_controller.BuildController(m.config.BinaryConfig, transitionConfig)
+}
+
+func (m *TransitionMeta) getCarousel() carousel.Carousel {
 	validator, err := m.extractValidatorFromPlugin()
 	if err != nil {
 		m.UI.Error(fmt.Sprintf("Failed to load plugin: %s", err.Error()))
@@ -57,11 +61,15 @@ func (m *TransitionMeta) getTransitionr() carousel.Transition {
 		validator = func(fqdn string) bool { return true }
 	}
 
-	transitionr := carousel.BuildTransitioner(config.BinaryConfig, &UILogger{m.UI}, validator, tainter, clusterGetter, carousel.DefaultGoalState, transitionConfig,
-		carousel.WithBatchSize(config.RolloutConfig.BatchSize),
-		carousel.WithSkipFirstN(config.RolloutConfig.SkipFirstN),
-	)
-	return transitionr
+	carousel, err := carousel.NewCarousel(&UILogger{m.UI}, m.UI, m.getController(), carousel.Config{
+		DryRun:   m.dryRun,
+		Validate: validator,
+	})
+	if err != nil {
+		m.UI.Error(err.Error())
+		os.Exit(1)
+	}
+	return carousel
 }
 
 func (m *TransitionMeta) extractValidatorFromPlugin() (carousel.HostValidator, error) {
@@ -95,7 +103,7 @@ func (m *TransitionMeta) extractValidatorFromPlugin() (carousel.HostValidator, e
 
 func (m *TransitionMeta) handleExitError(err error) int {
 	if err != nil {
-		var stepError carousel.StepError
+		var stepError model.StepError
 
 		if errors.As(err, &stepError) {
 			data, _ := json.MarshalIndent(&stepError, "", " ")

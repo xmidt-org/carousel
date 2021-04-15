@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/xmidt-org/carousel"
+	"github.com/xmidt-org/carousel/iac/terraform-controller"
 	"strings"
 )
 
@@ -43,9 +43,9 @@ func (c *TaintCommand) Run(args []string) int {
 		c.UI.Error(c.Help())
 		return 1
 	}
-	clusterGetter := carousel.BuildStateDeterminer(config.BinaryConfig)
-	grapher := carousel.BuildClusterGraphRunner(clusterGetter, config.BinaryConfig)
-	tainter := carousel.BuildTaintHostRunner(grapher, config.BinaryConfig)
+	clusterGetter := terraform_controller.BuildStateDeterminer(config.BinaryConfig)
+	grapher := terraform_controller.BuildClusterGraphRunner(clusterGetter, config.BinaryConfig)
+	tainter := terraform_controller.BuildTaintHostRunner(grapher, config.BinaryConfig)
 
 	for i := 0; i < hostCount; i++ {
 		hostname := cmdFlags.Arg(i)

@@ -1,9 +1,10 @@
-package carousel
+package runner
 
 import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/xmidt-org/carousel/model"
 	"io"
 	"os"
 	"os/exec"
@@ -128,7 +129,7 @@ func NewCMDRunner(dir, binary string, attachStdin bool, attachStdOut bool, attac
 
 // AddEnvironment add environment variables to a given Runnable. This will only do something if the runnable was built
 // with NewCMDRunner.
-func AddEnvironment(runner Runnable, prefix string, environment []ValuePair) Runnable {
+func AddEnvironment(runner Runnable, prefix string, environment []model.ValuePair) Runnable {
 	if cRun, ok := runner.(*cmdRunner); ok {
 		for _, pair := range environment {
 			cRun.cmd.Env = append(cRun.cmd.Env, fmt.Sprintf("%s%s=%s", prefix, pair.Key, pair.Value))

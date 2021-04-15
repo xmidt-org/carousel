@@ -1,4 +1,4 @@
-package carousel
+package model
 
 //go:generate go-enum -f=$GOFILE --marshal --names  --noprefix
 

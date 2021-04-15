@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/xmidt-org/carousel"
+	"github.com/xmidt-org/carousel/model"
 	"io/ioutil"
 	"strings"
 )
@@ -48,15 +48,13 @@ func (c *ResumeCommand) Run(args []string) int {
 	if err != nil {
 		c.UI.Error(fmt.Sprintf("failed to read error file %v", err))
 	}
-	var stepError carousel.StepError
+	var stepError model.StepError
 	err = json.Unmarshal(data, &stepError)
 	if err != nil {
 		c.UI.Error(fmt.Sprintf("failed to read error file %v", err))
 		return 1
 	}
 
-	transitionr := c.TransitionMeta.getTransitionr()
-	err = transitionr.Resume(stepError.StartingColorGroup, stepError.TODO, stepError.GoalClusterState)
-
+	err = c.TransitionMeta.getCarousel().Resume(stepError.StartingColorGroup, stepError.TODO, stepError.GoalClusterState)
 	return c.handleExitError(err)
 }

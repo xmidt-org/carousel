@@ -1,70 +1,46 @@
 package carousel
 
 import (
+	"errors"
+	"fmt"
 	"github.com/blang/semver/v4"
+	"github.com/go-kit/kit/log"
+	"github.com/xmidt-org/carousel/goal"
+	"github.com/xmidt-org/carousel/iac"
+	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/step"
+	"os"
 )
 
-// ValuePair represents a key value pair and is a workaround for viper converting all keys to lower case.
-// https://github.com/spf13/viper/issues/371
-type ValuePair struct {
-	// Key is the case sensitive argument or environment name.
-	Key string
-
-	// Value is the associated value.
-	Value string
+type UI interface {
+	// Info is used for any messages that might appear on standard
+	// output.
+	Info(string)
+	// Warn is used for any warning messages that might appear on standard
+	// error.
+	Warn(string)
 }
 
-// BinaryConfig represent the configuration in order to execute a terraform command.
-type BinaryConfig struct {
-	// Binary is the path to the binary to be Ran.
-	// This will will search the PATH for which binary to use.
-	// For more information refer to https://golang.org/pkg/os/exec/#LookPath
-	// If empty `terraform` will be used.
-	Binary string
+type BasicUI struct{}
 
-	// Args are optional arguments to be supplied to the binary. Note this will show up in plain text.
-	Args []ValuePair
-
-	// PrivateArgs are arguments that will supplied to the binary via Environment Variables with the Prefix TF_VAR_.
-	// Refer to https://www.terraform.io/docs/cli/config/environment-variables.html#tf_var_name for more information.
-	PrivateArgs []ValuePair
-
-	// Environment is additional environment variables to give the binary to run on top of the current environment.
-	Environment []ValuePair
-
-	// WorkingDirectory is the working directory to run the specified Binary.
-	// If empty the current directory will be used.
-	WorkingDirectory string
+func (b BasicUI) Info(s string) {
+	fmt.Fprintln(os.Stdout, s)
 }
 
-// SelectWorkspace is something that can change the workspace.
-type SelectWorkspace interface {
-	// SelectWorkspace changes the workspace used.
-	// If an empty string is supplied, the current workspace is used.
-	SelectWorkspace(workspace string) error
+func (b BasicUI) Warn(s string) {
+	fmt.Fprintln(os.Stderr, s)
 }
 
-// SelectWorkspace is something that can change get the current Cluster.
-type ClusterGetter interface {
-	// GetCluster returns the cluster or an error.
-	GetCluster() (Cluster, error)
+type Carousel struct {
+	logger     log.Logger
+	ui         UI
+	controller iac.Controller
+	config     Config
 }
 
-// GoalStateFunc creates a Goal ClusterState given a current Cluster.
-type GoalStateFunc func(current ClusterState, nodeCount int, version semver.Version) (ClusterState, error)
-
-// ClusterGraph is something that can get the resource dependencies of a specific host.
-type ClusterGraph interface {
-	// GetResourcesForHost returns the resource dependencies or an error given a specific host
-	GetResourcesForHost(hostname string) ([]string, error)
-}
-
-// Tainter is something that can mark something as bad.
-type Tainter interface {
-	// TaintResources will mark the given resources as bad or returns an error.
-	TaintResources(resources []string) error
-	// TaintHost will mark a Host as bad or returns an error.
-	TaintHost(hostname string) error
+type Config struct {
+	DryRun   bool
+	Validate HostValidator
 }
 
 // HostValidator is a function that Checks if a Host is bad or good.
@@ -74,14 +50,57 @@ func AsHostValidator(f func(fqdn string) bool) HostValidator {
 	return f
 }
 
-// StepGenerator is a function that returns the Step(s) to build from a ClusterState to a target ClusterState.
-type StepGenerator func(currentCluster ClusterState, targetCluster ClusterState, stepOptions ...StepOptions) []Step
+func NewCarousel(logger log.Logger, ui UI, controller iac.Controller, config Config) (Carousel, error) {
+	if logger == nil {
+		logger = log.NewNopLogger()
+	}
+	if ui == nil {
+		ui = BasicUI{}
+	}
+	if controller == nil {
+		return Carousel{}, errors.New("controller can't be empty")
+	}
+	if config.Validate == nil {
+		config.Validate = func(fqdn string) bool { return true }
+	}
+	return Carousel{
+		logger:     logger,
+		ui:         ui,
+		controller: controller,
+		config:     config,
+	}, nil
+}
 
-// Transition is something that can transition to a new ClusterState.
-type Transition interface {
-	// Transition handles the transition to a new ClusterState and returns an error if a problem occurs.
-	Transition(nodeCount int, version semver.Version) error
+func (c Carousel) Rollout(nodeCount int, version semver.Version, stepOptions ...step.StepOptions) error {
+	if c.controller == nil {
+		return errors.New("controller can't be empty")
+	}
+	// Get the current cluster.
+	cc, err := c.controller.GetCluster()
+	if err != nil {
+		return fmt.Errorf("%w: %v", iac.ErrGetClusterFailure, err)
+	}
+	// Determine the goal state.
+	goalCluster, err := goal.BuildEndState(cc.AsClusterState(), nodeCount, version)
+	if err != nil {
+		return fmt.Errorf("%w: %v", iac.ErrGoalStateFailure, err)
+	}
+	currentGroup, _ := cc.AsClusterState().Group()
 
-	// Resume handles transition with specific steps from a starting color to a goal cluster with specified steps.
-	Resume(startingColor Color, steps []Step, goalCluster ClusterState) error
+	// Build the steps to get to goal
+	steps := step.CreateSteps(cc.AsClusterState(), goalCluster, stepOptions...)
+
+	return c.transition(cc, currentGroup, steps, goalCluster)
+}
+
+func (c Carousel) Resume(startingColor model.Color, steps []model.Step, goalCluster model.ClusterState) error {
+	if c.controller == nil {
+		return errors.New("controller can't be empty")
+	}
+	// Get the current cluster.
+	cc, err := c.controller.GetCluster()
+	if err != nil {
+		return fmt.Errorf("%w: %v", iac.ErrGetClusterFailure, err)
+	}
+	return c.transition(cc, startingColor, steps, goalCluster)
 }

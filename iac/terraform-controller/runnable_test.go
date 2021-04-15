@@ -1,4 +1,4 @@
-package carousel
+package terraform_controller
 
 import "errors"
 

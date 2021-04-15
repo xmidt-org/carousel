@@ -1,17 +1,20 @@
-package carousel
+package terraform_controller
 
 import (
 	"errors"
 	"fmt"
+	"github.com/xmidt-org/carousel/iac"
+	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/runner"
 	"strings"
 )
 
 type tSelectWorkspace struct {
-	initRunner            Runnable
-	showRunner            Runnable
-	listRunner            Runnable
-	selectWorkspaceRunner func(workspace string) Runnable
-	newWorkspaceRunner    func(workspace string) Runnable
+	initRunner            runner.Runnable
+	showRunner            runner.Runnable
+	listRunner            runner.Runnable
+	selectWorkspaceRunner func(workspace string) runner.Runnable
+	newWorkspaceRunner    func(workspace string) runner.Runnable
 }
 
 var (
@@ -65,17 +68,17 @@ func (t *tSelectWorkspace) SelectWorkspace(workspace string) error {
 	return nil
 }
 
-// BuildStateDeterminer builds a terraform specific SelectWorkspace.
-func BuildSelectWorkspaceRunner(config BinaryConfig) SelectWorkspace {
+// BuildStateDeterminer builds a terraform specific WorkspaceSelecter.
+func BuildSelectWorkspaceRunner(config model.BinaryConfig) iac.WorkspaceSelecter {
 	return &tSelectWorkspace{
-		initRunner: NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "init"),
-		showRunner: NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "workspace", "show"),
-		listRunner: NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "workspace", "list"),
-		selectWorkspaceRunner: func(workspace string) Runnable {
-			return NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "workspace", "select", workspace)
+		initRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "init"),
+		showRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "workspace", "show"),
+		listRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "workspace", "list"),
+		selectWorkspaceRunner: func(workspace string) runner.Runnable {
+			return runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "workspace", "select", workspace)
 		},
-		newWorkspaceRunner: func(workspace string) Runnable {
-			return NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "workspace", "new", workspace)
+		newWorkspaceRunner: func(workspace string) runner.Runnable {
+			return runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "workspace", "new", workspace)
 		},
 	}
 }

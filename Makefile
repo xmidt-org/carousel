@@ -26,6 +26,8 @@ test:
 	$(GO) test -v -race  -json $$(go list ./... | grep -v integration) > report.json
 
 acceptance:
+	# check if terraform is installed
+	@which terraform > /dev/null
 	-mkdir integration/plugin
 	-$(GO) build -buildmode=plugin -o integration/plugin/evenHostValidator.so example/main.go
 	$(GO) test -v ./integration/

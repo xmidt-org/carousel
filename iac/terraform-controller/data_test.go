@@ -1,4 +1,4 @@
-package carousel
+package terraform_controller
 
 const emptyState = `{
   "version": 4,
