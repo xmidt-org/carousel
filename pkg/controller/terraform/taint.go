@@ -71,7 +71,7 @@ func BuildTaintHostRunner(graphCluster controller.ClusterGraph, config model.Bin
 	return &tTaint{
 		graphCluster: graphCluster,
 		taintRunnerBuilder: func(key string) runner.Runnable {
-			return runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "taint", key)
+			return runner.NewCMDRunner(config.WorkingDirectory, config.Binary, runner.Options{}, "taint", key)
 		},
 	}
 }
