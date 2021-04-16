@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-kit/kit/log/level"
-	"github.com/xmidt-org/carousel/model"
-	"github.com/xmidt-org/carousel/runner"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"sync"
 )
 
@@ -71,7 +71,6 @@ func (c Carousel) handleRun(applyRunner runner.Runnable, currHost map[string]boo
 			ResultErr: fmt.Errorf("%w: with runnable %s", err, applyRunner.String()),
 		}
 	}
-	rerun := false
 
 	// get the resulting cluster.
 	newCluster, err := c.controller.GetCluster()
@@ -89,30 +88,17 @@ func (c Carousel) handleRun(applyRunner runner.Runnable, currHost map[string]boo
 	}
 	hostToCheckCount := len(hostsToCheck)
 	errChan := make(chan error, hostToCheckCount)
+	reRunChan := make(chan bool, hostToCheckCount)
 	wg := new(sync.WaitGroup)
 	wg.Add(hostToCheckCount)
 	for _, host := range hostsToCheck {
-		go func(hostname string) {
-			if !c.config.Validate(hostname) {
-				level.Debug(c.logger).Log("msg", "check failed", "host", hostname)
-
-				err = c.controller.TaintHost(hostname)
-				if err != nil {
-					errChan <- err
-				}
-
-				// re run command and checks stuff	t.logger.Log(level.Key(), level.DebugValue(), "msg", cc.AsClusterState().String())
-				rerun = true
-			} else {
-				currHost[hostname] = true
-			}
-			wg.Done()
-		}(host)
+		go c.checkHost(host, errChan, reRunChan, currHost, wg)
 	}
 	wg.Wait()
 	close(errChan)
+	close(reRunChan)
 	// if a host is not valid we have to rerun the step.
-	if rerun {
+	for range reRunChan {
 		return c.handleRun(applyRunner, currHost, applyGroup)
 	}
 
@@ -126,4 +112,21 @@ func (c Carousel) handleRun(applyRunner runner.Runnable, currHost map[string]boo
 		return nil
 	}
 	return taintingErrors
+}
+
+func (c Carousel) checkHost(hostname string, errChan chan<- error, rerun chan<- bool, currHost map[string]bool, wg *sync.WaitGroup) {
+	if !c.config.Validate(hostname) {
+		level.Debug(c.logger).Log("msg", "check failed", "host", hostname)
+
+		err := c.controller.TaintHost(hostname)
+		if err != nil {
+			errChan <- err
+		}
+
+		// re run command and checks stuff	t.logger.Log(level.Key(), level.DebugValue(), "msg", cc.AsClusterState().String())
+		rerun <- true
+	} else {
+		currHost[hostname] = true
+	}
+	wg.Done()
 }

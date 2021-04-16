@@ -1,11 +1,11 @@
-package terraform_controller
+package terraform
 
 import (
 	"errors"
 	"fmt"
-	"github.com/xmidt-org/carousel/iac"
-	"github.com/xmidt-org/carousel/model"
-	"github.com/xmidt-org/carousel/runner"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"os/exec"
 	"strings"
 )
@@ -13,7 +13,7 @@ import (
 var errNoSuchResource = errors.New("resource not found, could be an outdated terraform https://github.com/hashicorp/terraform/pull/22467")
 
 type tTaint struct {
-	graphCluster iac.ClusterGraph
+	graphCluster controller.ClusterGraph
 	// taintRunnerBuilder is a helper function that generates a Runnable to taint a given resource dependency.
 	taintRunnerBuilder func(key string) runner.Runnable
 }
@@ -67,7 +67,7 @@ func (t *tTaint) TaintHost(hostname string) error {
 }
 
 // BuildTaintHostRunner builds a terraform specific Tainter.
-func BuildTaintHostRunner(graphCluster iac.ClusterGraph, config model.BinaryConfig) iac.Tainter {
+func BuildTaintHostRunner(graphCluster controller.ClusterGraph, config model.BinaryConfig) controller.Tainter {
 	return &tTaint{
 		graphCluster: graphCluster,
 		taintRunnerBuilder: func(key string) runner.Runnable {

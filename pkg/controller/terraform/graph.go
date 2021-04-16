@@ -1,11 +1,11 @@
-package terraform_controller
+package terraform
 
 import (
 	"errors"
 	"fmt"
-	"github.com/xmidt-org/carousel/iac"
-	"github.com/xmidt-org/carousel/model"
-	"github.com/xmidt-org/carousel/runner"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"regexp"
 	"strconv"
 	"strings"
@@ -18,7 +18,7 @@ var (
 )
 
 type tGraph struct {
-	getter     iac.ClusterGetter
+	getter     controller.ClusterGetter
 	listRunner runner.Runnable
 }
 
@@ -28,7 +28,7 @@ func (t *tGraph) GetResourcesForHost(hostname string) ([]string, error) {
 	}
 	c, err := t.getter.GetCluster()
 	if err != nil {
-		return []string{}, fmt.Errorf("%w: %v", iac.ErrGetClusterFailure, err)
+		return []string{}, fmt.Errorf("%w: %v", controller.ErrGetClusterFailure, err)
 	}
 	group := model.Unknown
 	index := 0
@@ -69,7 +69,7 @@ LOOP:
 }
 
 // BuildStateDeterminer builds a terraform specific ClusterGraph.
-func BuildClusterGraphRunner(getter iac.ClusterGetter, config model.BinaryConfig) iac.ClusterGraph {
+func BuildClusterGraphRunner(getter controller.ClusterGetter, config model.BinaryConfig) controller.ClusterGraph {
 	return &tGraph{
 		getter:     getter,
 		listRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "state", "list"),

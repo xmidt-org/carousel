@@ -2,7 +2,7 @@ package step
 
 import (
 	"github.com/blang/semver/v4"
-	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/pkg/model"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

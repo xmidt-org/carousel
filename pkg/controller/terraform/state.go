@@ -1,4 +1,4 @@
-package terraform_controller
+package terraform
 
 import (
 	"bytes"
@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"github.com/blang/semver/v4"
 	"github.com/hashicorp/terraform/states/statefile"
-	"github.com/xmidt-org/carousel/iac"
-	"github.com/xmidt-org/carousel/model"
-	"github.com/xmidt-org/carousel/runner"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -75,7 +75,7 @@ func (t *tState) GetCluster() (model.Cluster, error) {
 }
 
 // BuildStateDeterminer builds a terraform specific ClusterGetter.
-func BuildStateDeterminer(config model.BinaryConfig) iac.ClusterGetter {
+func BuildStateDeterminer(config model.BinaryConfig) controller.ClusterGetter {
 	return &tState{
 		stateRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "state", "pull"),
 	}

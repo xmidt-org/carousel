@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/blang/semver/v4"
 	"github.com/stretchr/testify/assert"
-	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/pkg/model"
 	"testing"
 )
 

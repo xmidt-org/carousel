@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/xmidt-org/carousel"
+	carousel2 "github.com/xmidt-org/carousel/pkg/carousel"
 	"plugin"
 	"testing"
 )
@@ -24,7 +24,7 @@ func TestCheckHostType(t *testing.T) {
 		assert.Fail("Check host is not a func(fqdn string) bool")
 	}
 	sys = Check
-	if _, ok := sys.(carousel.HostValidator); !ok {
+	if _, ok := sys.(carousel2.HostValidator); !ok {
 		assert.Fail("Check is not a carousel.HostValidator")
 	}
 }

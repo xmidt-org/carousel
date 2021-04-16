@@ -6,8 +6,8 @@ import (
 	"github.com/mitchellh/cli"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/xmidt-org/carousel/iac/terraform-controller"
-	"github.com/xmidt-org/carousel/runner"
+	"github.com/xmidt-org/carousel/pkg/controller/terraform"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"io/ioutil"
 )
 
@@ -100,7 +100,7 @@ func (m *Meta) LoadConfig() Config {
 		m.config = &config
 	}
 
-	if err := terraform_controller.BuildSelectWorkspaceRunner(m.config.BinaryConfig).SelectWorkspace(m.config.Workspace); err != nil {
+	if err := terraform.BuildSelectWorkspaceRunner(m.config.BinaryConfig).SelectWorkspace(m.config.Workspace); err != nil {
 		var exitErr runner.ExitError
 
 		if errors.As(err, &exitErr) {

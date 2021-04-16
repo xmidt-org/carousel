@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/pkg/model"
 )
 
 // RolloutConfig specifies the options for transitioning the cluster to the new state.

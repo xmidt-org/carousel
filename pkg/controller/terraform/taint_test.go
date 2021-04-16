@@ -1,10 +1,10 @@
-package terraform_controller
+package terraform
 
 import (
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/xmidt-org/carousel/runner"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"os"
 	"os/exec"
 	"testing"

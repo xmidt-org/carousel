@@ -1,20 +1,20 @@
-package terraform_controller
+package terraform
 
 import (
-	"github.com/xmidt-org/carousel/iac"
-	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	"github.com/xmidt-org/carousel/pkg/model"
 )
 
-func BuildController(config model.BinaryConfig, transitionConfig TerraformTransitionConfig) iac.Controller {
+func BuildController(config model.BinaryConfig, transitionConfig TerraformTransitionConfig) controller.Controller {
 	clusterGetter := BuildStateDeterminer(config)
 	grapher := BuildClusterGraphRunner(clusterGetter, config)
 	tainter := BuildTaintHostRunner(grapher, config)
 
 	return struct {
-		iac.WorkspaceSelecter
-		iac.ClusterGetter
-		iac.Tainter
-		iac.ApplyBuilder
+		controller.WorkspaceSelecter
+		controller.ClusterGetter
+		controller.Tainter
+		controller.ApplyBuilder
 	}{
 		WorkspaceSelecter: BuildSelectWorkspaceRunner(config),
 		ClusterGetter:     clusterGetter,

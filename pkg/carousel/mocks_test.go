@@ -2,8 +2,8 @@ package carousel
 
 import (
 	"github.com/stretchr/testify/mock"
-	"github.com/xmidt-org/carousel/model"
-	"github.com/xmidt-org/carousel/runner"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/runner"
 )
 
 type MockController struct {

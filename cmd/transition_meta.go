@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/pflag"
-	"github.com/xmidt-org/carousel"
-	"github.com/xmidt-org/carousel/iac"
-	terraform_controller "github.com/xmidt-org/carousel/iac/terraform-controller"
-	"github.com/xmidt-org/carousel/model"
+	carousel2 "github.com/xmidt-org/carousel/pkg/carousel"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	terraform_controller "github.com/xmidt-org/carousel/pkg/controller/terraform"
+	"github.com/xmidt-org/carousel/pkg/model"
 	"io/ioutil"
 	"os"
 	"plugin"
@@ -38,7 +38,7 @@ func (m *TransitionMeta) transitionFlagSet(n string) *pflag.FlagSet {
 	return cmdFlags
 }
 
-func (m *TransitionMeta) getController() iac.Controller {
+func (m *TransitionMeta) getController() controller.Controller {
 	m.LoadConfig()
 	transitionConfig := terraform_controller.TerraformTransitionConfig{
 		AttachStdOut: !m.notQuiet,
@@ -49,7 +49,7 @@ func (m *TransitionMeta) getController() iac.Controller {
 	return terraform_controller.BuildController(m.config.BinaryConfig, transitionConfig)
 }
 
-func (m *TransitionMeta) getCarousel() carousel.Carousel {
+func (m *TransitionMeta) getCarousel() carousel2.Carousel {
 	validator, err := m.extractValidatorFromPlugin()
 	if err != nil {
 		m.UI.Error(fmt.Sprintf("Failed to load plugin: %s", err.Error()))
@@ -61,7 +61,7 @@ func (m *TransitionMeta) getCarousel() carousel.Carousel {
 		validator = func(fqdn string) bool { return true }
 	}
 
-	carousel, err := carousel.NewCarousel(&UILogger{m.UI}, m.UI, m.getController(), carousel.Config{
+	carousel, err := carousel2.NewCarousel(&UILogger{m.UI}, m.UI, m.getController(), carousel2.Config{
 		DryRun:   m.dryRun,
 		Validate: validator,
 	})
@@ -72,7 +72,7 @@ func (m *TransitionMeta) getCarousel() carousel.Carousel {
 	return carousel
 }
 
-func (m *TransitionMeta) extractValidatorFromPlugin() (carousel.HostValidator, error) {
+func (m *TransitionMeta) extractValidatorFromPlugin() (carousel2.HostValidator, error) {
 	if m.pluginFile == "" {
 		return nil, nil
 	}
@@ -80,11 +80,11 @@ func (m *TransitionMeta) extractValidatorFromPlugin() (carousel.HostValidator, e
 		if f, lookupErr := p.Lookup("CheckHost"); lookupErr == nil {
 			if checkHostF, ok := f.(func(string) bool); ok {
 				if checkHostF != nil {
-					return carousel.AsHostValidator(checkHostF), nil
+					return carousel2.AsHostValidator(checkHostF), nil
 				} else {
 					return nil, fmt.Errorf("CheckHost is nil")
 				}
-			} else if checkHost, ok := f.(carousel.HostValidator); ok {
+			} else if checkHost, ok := f.(carousel2.HostValidator); ok {
 				if checkHost != nil {
 					return checkHost, nil
 				} else {

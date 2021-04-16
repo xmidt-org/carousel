@@ -1,11 +1,11 @@
-package terraform_controller
+package terraform
 
 import (
 	"errors"
 	"fmt"
-	"github.com/xmidt-org/carousel/iac"
-	"github.com/xmidt-org/carousel/model"
-	"github.com/xmidt-org/carousel/runner"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"strings"
 )
 
@@ -69,7 +69,7 @@ func (t *tSelectWorkspace) SelectWorkspace(workspace string) error {
 }
 
 // BuildStateDeterminer builds a terraform specific WorkspaceSelecter.
-func BuildSelectWorkspaceRunner(config model.BinaryConfig) iac.WorkspaceSelecter {
+func BuildSelectWorkspaceRunner(config model.BinaryConfig) controller.WorkspaceSelecter {
 	return &tSelectWorkspace{
 		initRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "init"),
 		showRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "workspace", "show"),

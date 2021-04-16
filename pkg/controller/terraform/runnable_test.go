@@ -1,4 +1,4 @@
-package terraform_controller
+package terraform
 
 import "errors"
 

@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/pkg/model"
 	"io"
 	"os"
 	"os/exec"

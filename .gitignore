@@ -20,6 +20,9 @@ coverage.txt
 # binaries
 carousel
 
+# include pkg carousel
+!pkg/carousel/
+
 # linter output
 errors.txt
 

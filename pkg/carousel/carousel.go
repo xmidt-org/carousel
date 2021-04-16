@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"github.com/blang/semver/v4"
 	"github.com/go-kit/kit/log"
-	"github.com/xmidt-org/carousel/goal"
-	"github.com/xmidt-org/carousel/iac"
-	"github.com/xmidt-org/carousel/model"
-	"github.com/xmidt-org/carousel/step"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	"github.com/xmidt-org/carousel/pkg/goal"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/step"
 	"os"
 )
 
@@ -34,7 +34,7 @@ func (b BasicUI) Warn(s string) {
 type Carousel struct {
 	logger     log.Logger
 	ui         UI
-	controller iac.Controller
+	controller controller.Controller
 	config     Config
 }
 
@@ -50,7 +50,7 @@ func AsHostValidator(f func(fqdn string) bool) HostValidator {
 	return f
 }
 
-func NewCarousel(logger log.Logger, ui UI, controller iac.Controller, config Config) (Carousel, error) {
+func NewCarousel(logger log.Logger, ui UI, controller controller.Controller, config Config) (Carousel, error) {
 	if logger == nil {
 		logger = log.NewNopLogger()
 	}
@@ -78,12 +78,12 @@ func (c Carousel) Rollout(nodeCount int, version semver.Version, stepOptions ...
 	// Get the current cluster.
 	cc, err := c.controller.GetCluster()
 	if err != nil {
-		return fmt.Errorf("%w: %v", iac.ErrGetClusterFailure, err)
+		return fmt.Errorf("%w: %v", controller.ErrGetClusterFailure, err)
 	}
 	// Determine the goal state.
 	goalCluster, err := goal.BuildEndState(cc.AsClusterState(), nodeCount, version)
 	if err != nil {
-		return fmt.Errorf("%w: %v", iac.ErrGoalStateFailure, err)
+		return fmt.Errorf("%w: %v", controller.ErrGoalStateFailure, err)
 	}
 	currentGroup, _ := cc.AsClusterState().Group()
 
@@ -100,7 +100,7 @@ func (c Carousel) Resume(startingColor model.Color, steps []model.Step, goalClus
 	// Get the current cluster.
 	cc, err := c.controller.GetCluster()
 	if err != nil {
-		return fmt.Errorf("%w: %v", iac.ErrGetClusterFailure, err)
+		return fmt.Errorf("%w: %v", controller.ErrGetClusterFailure, err)
 	}
 	return c.transition(cc, startingColor, steps, goalCluster)
 }

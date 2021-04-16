@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/xmidt-org/carousel/iac/terraform-controller"
-	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/pkg/controller/terraform"
+	"github.com/xmidt-org/carousel/pkg/model"
 	"strings"
 )
 
@@ -45,7 +45,7 @@ func (c *StateCommand) Run(args []string) int {
 	}
 	config := c.Meta.LoadConfig()
 
-	cluster, err := terraform_controller.BuildStateDeterminer(config.BinaryConfig).GetCluster()
+	cluster, err := terraform.BuildStateDeterminer(config.BinaryConfig).GetCluster()
 	if err != nil {
 		c.UI.Error(fmt.Sprintf("Failed to get Cluster state: \n %v", err))
 		return 1

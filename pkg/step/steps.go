@@ -1,7 +1,7 @@
 package step
 
 import (
-	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/pkg/model"
 )
 
 // Generator is a function that returns the Step(s) to build from a ClusterState to a target ClusterState.

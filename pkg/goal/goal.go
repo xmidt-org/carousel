@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/blang/semver/v4"
-	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/pkg/model"
 )
 
 var (

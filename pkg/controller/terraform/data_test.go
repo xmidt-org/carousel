@@ -1,4 +1,4 @@
-package terraform_controller
+package terraform
 
 const emptyState = `{
   "version": 4,

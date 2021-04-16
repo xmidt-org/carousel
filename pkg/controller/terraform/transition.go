@@ -1,11 +1,11 @@
-package terraform_controller
+package terraform
 
 import (
 	"errors"
 	"fmt"
-	"github.com/xmidt-org/carousel/iac"
-	"github.com/xmidt-org/carousel/model"
-	"github.com/xmidt-org/carousel/runner"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"strings"
 )
 
@@ -51,8 +51,8 @@ type TerraformTransitionConfig struct {
 	AttachStdErr bool
 }
 
-// BuildTransitioner builds a terraform specific iac.ApplyBuilder.
-func BuildTransitioner(config model.BinaryConfig, transitionConfig TerraformTransitionConfig) iac.ApplyBuilder {
+// BuildTransitioner builds a terraform specific controller.ApplyBuilder.
+func BuildTransitioner(config model.BinaryConfig, transitionConfig TerraformTransitionConfig) controller.ApplyBuilder {
 	return &tTransition{
 		config:           config,
 		transitionConfig: transitionConfig,

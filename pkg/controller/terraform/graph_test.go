@@ -1,10 +1,10 @@
-package terraform_controller
+package terraform
 
 import (
 	"errors"
 	"github.com/stretchr/testify/assert"
-	"github.com/xmidt-org/carousel/iac"
-	"github.com/xmidt-org/carousel/runner"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"testing"
 )
 
@@ -35,7 +35,7 @@ func TestClusterGraph(t *testing.T) {
 				Name: "testRunner",
 				Data: nil,
 			},
-			expectedErr: iac.ErrGetClusterFailure,
+			expectedErr: controller.ErrGetClusterFailure,
 		},
 		{
 			name:              "empty_json",
@@ -45,7 +45,7 @@ func TestClusterGraph(t *testing.T) {
 				Name: "testRunner",
 				Data: []byte(`{}`),
 			},
-			expectedErr: iac.ErrGetClusterFailure,
+			expectedErr: controller.ErrGetClusterFailure,
 		},
 		{
 			name:              "empty_state",

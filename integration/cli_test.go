@@ -7,7 +7,7 @@ import (
 	"github.com/kr/pretty"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/xmidt-org/carousel/model"
+	"github.com/xmidt-org/carousel/pkg/model"
 	"os"
 	"os/exec"
 	"path/filepath"
