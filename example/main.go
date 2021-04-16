@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	carousel2 "github.com/xmidt-org/carousel/pkg/carousel"
+	"github.com/xmidt-org/carousel/pkg/carousel"
 	"regexp"
 	"strconv"
 )
@@ -10,7 +10,7 @@ import (
 var hostnameRegex = regexp.MustCompile(`^[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$`)
 var prefixRegex = regexp.MustCompile(`(.*?)\.`)
 
-var Check carousel2.HostValidator = CheckHost
+var Check carousel.HostValidator = CheckHost
 
 func CheckHost(fqdn string) bool {
 	matches := hostnameRegex.FindStringSubmatch(fqdn)
