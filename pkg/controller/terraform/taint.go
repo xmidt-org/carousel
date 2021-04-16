@@ -1,8 +1,11 @@
-package carousel
+package terraform
 
 import (
 	"errors"
 	"fmt"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"os/exec"
 	"strings"
 )
@@ -10,9 +13,9 @@ import (
 var errNoSuchResource = errors.New("resource not found, could be an outdated terraform https://github.com/hashicorp/terraform/pull/22467")
 
 type tTaint struct {
-	graphCluster ClusterGraph
+	graphCluster controller.ClusterGraph
 	// taintRunnerBuilder is a helper function that generates a Runnable to taint a given resource dependency.
-	taintRunnerBuilder func(key string) Runnable
+	taintRunnerBuilder func(key string) runner.Runnable
 }
 
 func (t *tTaint) TaintResources(resources []string) error {
@@ -40,7 +43,7 @@ func (t *tTaint) checkRecoverable(err error) error {
 	if exitError, ok := err.(*exec.ExitError); ok {
 		errString = string(exitError.Stderr)
 	}
-	if exitError, ok := err.(ExitError); ok {
+	if exitError, ok := err.(runner.ExitError); ok {
 		errString = string(exitError.CapturedErrorOutput)
 	}
 
@@ -64,11 +67,11 @@ func (t *tTaint) TaintHost(hostname string) error {
 }
 
 // BuildTaintHostRunner builds a terraform specific Tainter.
-func BuildTaintHostRunner(graphCluster ClusterGraph, config BinaryConfig) Tainter {
+func BuildTaintHostRunner(graphCluster controller.ClusterGraph, config model.BinaryConfig) controller.Tainter {
 	return &tTaint{
 		graphCluster: graphCluster,
-		taintRunnerBuilder: func(key string) Runnable {
-			return NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "taint", key)
+		taintRunnerBuilder: func(key string) runner.Runnable {
+			return runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "taint", key)
 		},
 	}
 }

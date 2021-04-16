@@ -1,4 +1,4 @@
-package carousel
+package terraform
 
 import (
 	"bytes"
@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"github.com/blang/semver/v4"
 	"github.com/hashicorp/terraform/states/statefile"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -15,11 +18,11 @@ var (
 )
 
 type tState struct {
-	stateRunner Runnable
+	stateRunner runner.Runnable
 }
 
-func (t *tState) GetCluster() (Cluster, error) {
-	c := NewCluster()
+func (t *tState) GetCluster() (model.Cluster, error) {
+	c := model.NewCluster()
 	data, err := t.stateRunner.Output()
 	if err != nil {
 		return c, fmt.Errorf("%w: %v", errFailedToGetData, err)
@@ -37,7 +40,7 @@ func (t *tState) GetCluster() (Cluster, error) {
 	}
 
 	// Get the hostnames for each group
-	for _, color := range ValidColors {
+	for _, color := range model.ValidColors {
 		var (
 			hosts   []string
 			version semver.Version
@@ -63,7 +66,7 @@ func (t *tState) GetCluster() (Cluster, error) {
 				return c, fmt.Errorf("%w: %s %s", err, color, versionElem.Value.AsString())
 			}
 		}
-		c[color] = ClusterGroup{
+		c[color] = model.ClusterGroup{
 			Hosts:   hosts,
 			Version: version,
 		}
@@ -72,8 +75,8 @@ func (t *tState) GetCluster() (Cluster, error) {
 }
 
 // BuildStateDeterminer builds a terraform specific ClusterGetter.
-func BuildStateDeterminer(config BinaryConfig) ClusterGetter {
+func BuildStateDeterminer(config model.BinaryConfig) controller.ClusterGetter {
 	return &tState{
-		stateRunner: NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "state", "pull"),
+		stateRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "state", "pull"),
 	}
 }

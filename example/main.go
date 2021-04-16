@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/xmidt-org/carousel"
+	"github.com/xmidt-org/carousel/pkg/carousel"
 	"regexp"
 	"strconv"
 )

@@ -1,23 +1,25 @@
-package carousel
+package terraform
 
 import (
 	"errors"
 	"fmt"
+	"github.com/xmidt-org/carousel/pkg/controller"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
 var (
-	errEmptyHostName     = errors.New("hostname can not be empty")
-	errStateList         = errors.New("failed to list resources")
-	errHostNotInGroup    = errors.New("host not part of group")
-	errGetClusterFailure = errors.New("failed to get cluster state")
+	errEmptyHostName  = errors.New("hostname can not be empty")
+	errStateList      = errors.New("failed to list resources")
+	errHostNotInGroup = errors.New("host not part of group")
 )
 
 type tGraph struct {
-	getter     ClusterGetter
-	listRunner Runnable
+	getter     controller.ClusterGetter
+	listRunner runner.Runnable
 }
 
 func (t *tGraph) GetResourcesForHost(hostname string) ([]string, error) {
@@ -26,9 +28,9 @@ func (t *tGraph) GetResourcesForHost(hostname string) ([]string, error) {
 	}
 	c, err := t.getter.GetCluster()
 	if err != nil {
-		return []string{}, fmt.Errorf("%w: %v", errGetClusterFailure, err)
+		return []string{}, fmt.Errorf("%w: %v", controller.ErrGetClusterFailure, err)
 	}
-	group := Unknown
+	group := model.Unknown
 	index := 0
 
 LOOP:
@@ -41,7 +43,7 @@ LOOP:
 			}
 		}
 	}
-	if group == Unknown {
+	if group == model.Unknown {
 		return []string{}, fmt.Errorf("%w: %v", errHostNotInGroup, hostname)
 	}
 
@@ -67,9 +69,9 @@ LOOP:
 }
 
 // BuildStateDeterminer builds a terraform specific ClusterGraph.
-func BuildClusterGraphRunner(getter ClusterGetter, config BinaryConfig) ClusterGraph {
+func BuildClusterGraphRunner(getter controller.ClusterGetter, config model.BinaryConfig) controller.ClusterGraph {
 	return &tGraph{
 		getter:     getter,
-		listRunner: NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "state", "list"),
+		listRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "state", "list"),
 	}
 }

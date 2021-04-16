@@ -52,7 +52,6 @@ func (c *RolloutCommand) Run(args []string) int {
 		c.UI.Error(fmt.Sprintf("Failed to determine version of servers to deploy %v", err))
 	}
 
-	transitionr := c.TransitionMeta.getTransitionr()
-	err = transitionr.Transition(serverCount, version)
+	err = c.TransitionMeta.getCarousel().Rollout(serverCount, version)
 	return c.handleExitError(err)
 }

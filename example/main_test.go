@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/xmidt-org/carousel"
+	"github.com/xmidt-org/carousel/pkg/carousel"
 	"plugin"
 	"testing"
 )

@@ -1,13 +1,43 @@
-package carousel
+package terraform
 
 import (
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"os"
 	"os/exec"
 	"testing"
 )
+
+type MockClusterGraph struct {
+	mock.Mock
+}
+
+func (m *MockClusterGraph) GetResourcesForHost(hostname string) ([]string, error) {
+	args := m.Called(hostname)
+	if resources := args.Get(0); resources != nil {
+		return args.Get(0).([]string), args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
+type MockRunner struct {
+	mock.Mock
+}
+
+func (m *MockRunner) Output() ([]byte, error) {
+	args := m.Called()
+	if data := args.Get(0); data != nil {
+		return args.Get(0).([]byte), args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
+func (m *MockRunner) String() string {
+	args := m.Called()
+	return args.String(0)
+}
 
 func TestTainter(t *testing.T) {
 	assert := assert.New(t)
@@ -25,7 +55,7 @@ func TestTainter(t *testing.T) {
 	}).Once()
 	// Second Taint Host, 1 resources succeed, the other failed
 	mockRunner.On("Output").Return(nil, nil).Once()
-	mockRunner.On("Output").Return(nil, ExitError{
+	mockRunner.On("Output").Return(nil, runner.ExitError{
 		CapturedError:       errors.New("exit status 1"),
 		CapturedErrorOutput: []byte("asset1 cannot be tainted"),
 	}).Once()
@@ -38,7 +68,7 @@ func TestTainter(t *testing.T) {
 
 	tainter := tTaint{
 		graphCluster: fakeClusterGraph,
-		taintRunnerBuilder: func(key string) Runnable {
+		taintRunnerBuilder: func(key string) runner.Runnable {
 			if key == "" {
 				assert.Fail("key should not be empty")
 			}

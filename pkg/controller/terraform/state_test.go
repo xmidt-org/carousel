@@ -1,19 +1,21 @@
-package carousel
+package terraform
 
 import (
 	"errors"
 	"github.com/blang/semver/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/xmidt-org/carousel/pkg/model"
+	"github.com/xmidt-org/carousel/pkg/runner"
 	"testing"
 )
 
-var emptyCluster = NewCluster()
+var emptyCluster = model.NewCluster()
 
 func TestGetCluster(t *testing.T) {
 	tests := []struct {
 		name            string
-		expectedCluster Cluster
-		runner          Runnable
+		expectedCluster model.Cluster
+		runner          runner.Runnable
 		expectedErr     error
 	}{
 		{
@@ -48,12 +50,12 @@ func TestGetCluster(t *testing.T) {
 				Name: "testRunner",
 				Data: []byte(cleanState),
 			},
-			expectedCluster: Cluster{
-				Blue: ClusterGroup{
+			expectedCluster: model.Cluster{
+				model.Blue: model.ClusterGroup{
 					Hosts:   []string{},
 					Version: semver.MustParse("0.10.0"),
 				},
-				Green: ClusterGroup{
+				model.Green: model.ClusterGroup{
 					Hosts:   []string{"carousel-demo-ffdbb6.example.com", "carousel-demo-ea9412.example.com"},
 					Version: semver.MustParse("0.10.0"),
 				},

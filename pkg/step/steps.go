@@ -1,4 +1,11 @@
-package carousel
+package step
+
+import (
+	"github.com/xmidt-org/carousel/pkg/model"
+)
+
+// Generator is a function that returns the Step(s) to build from a ClusterState to a target ClusterState.
+type Generator func(currentCluster model.ClusterState, targetCluster model.ClusterState, stepOptions ...StepOptions) []model.Step
 
 type options struct {
 	batchSize  int
@@ -43,10 +50,10 @@ func WithSkipFirstN(n int) StepOptions {
 // By the time we're done, we should have all nodes needed for the new cluster
 //
 // Phase 3: Remove all remaining nodes from the old cluster
-func CreateSteps(currentCluster ClusterState, targetCluster ClusterState, stepOptions ...StepOptions) []Step {
+func CreateSteps(currentCluster model.ClusterState, targetCluster model.ClusterState, stepOptions ...StepOptions) []model.Step {
 	// Nothing to do
 	if currentCluster.IsEmpty() && targetCluster.IsEmpty() {
-		return []Step{AsStep(targetCluster)}
+		return []model.Step{AsStep(targetCluster)}
 	}
 	options := &options{
 		batchSize:  1,
@@ -57,19 +64,19 @@ func CreateSteps(currentCluster ClusterState, targetCluster ClusterState, stepOp
 	}
 
 	buildColor, _ := targetCluster.Group()
-	if buildColor == Unknown {
-		buildColor = ValidColors[0]
+	if buildColor == model.Unknown {
+		buildColor = model.ValidColors[0]
 	}
-	return append([]Step{AsStep(currentCluster)}, generateSteps(currentCluster, targetCluster, options, buildColor, true, []Step{})...)
+	return append([]model.Step{AsStep(currentCluster)}, generateSteps(currentCluster, targetCluster, options, buildColor, true, []model.Step{})...)
 }
 
 // generateSteps is a tail recursive call for building steps with the create step prepended to the list.
-func generateSteps(currentCluster ClusterState, targetCluster ClusterState, options *options, group Color, addNodes bool, steps []Step) []Step {
+func generateSteps(currentCluster model.ClusterState, targetCluster model.ClusterState, options *options, group model.Color, addNodes bool, steps []model.Step) []model.Step {
 	// BaseCase
 	if currentCluster.EqualNodeCount(targetCluster) {
 		return steps
 	}
-	var nextState ClusterState
+	var nextState model.ClusterState
 
 	var (
 		currentNodeCount = currentCluster[group].Count
@@ -97,7 +104,7 @@ func generateSteps(currentCluster ClusterState, targetCluster ClusterState, opti
 		}
 	}
 
-	return append([]Step{AsStep(nextState)}, generateSteps(nextState, targetCluster, options, group.Other(), !addNodes, steps)...)
+	return append([]model.Step{AsStep(nextState)}, generateSteps(nextState, targetCluster, options, group.Other(), !addNodes, steps)...)
 }
 
 func addAndSkip(currentNodeCount int, targetNodeCount int, batchSize int, skipfirstN int) int {
@@ -121,8 +128,8 @@ func minusAndSkip(currentNodeCount int, targetNodeCount int, batchSize int, skip
 // AsStep creates a Step struct from a ClusterState
 // In other words a Step will result in a ClusterState.
 // This is a helper function to make life easier.
-func AsStep(cs ClusterState) Step {
-	step := Step{}
+func AsStep(cs model.ClusterState) model.Step {
+	step := model.Step{}
 	for color, group := range cs {
 		step[color] = group.Count
 	}

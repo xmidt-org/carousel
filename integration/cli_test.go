@@ -7,7 +7,7 @@ import (
 	"github.com/kr/pretty"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/xmidt-org/carousel"
+	"github.com/xmidt-org/carousel/pkg/model"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -105,7 +105,7 @@ func getCurrentHosts(t *testing.T, wd string) []string {
 	fullStateCmd.Dir = wd
 	clusterStateBytes, err := fullStateCmd.CombinedOutput()
 	require.NoError(err)
-	cs := carousel.Cluster{}
+	cs := model.Cluster{}
 	err = json.Unmarshal(clusterStateBytes, &cs)
 	require.NoError(err, string(clusterStateBytes))
 	currenthosts := make([]string, 0)
