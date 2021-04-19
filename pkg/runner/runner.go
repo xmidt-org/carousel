@@ -80,7 +80,6 @@ func (c *cmdRunner) Output() ([]byte, error) {
 	}()
 	defer func() {
 		signal.Stop(signalChannel)
-		signalChannel <- nil
 		close(signalChannel)
 	}()
 
