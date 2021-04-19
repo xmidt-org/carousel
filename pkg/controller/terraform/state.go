@@ -77,6 +77,6 @@ func (t *tState) GetCluster() (model.Cluster, error) {
 // BuildStateDeterminer builds a terraform specific ClusterGetter.
 func BuildStateDeterminer(config model.BinaryConfig) controller.ClusterGetter {
 	return &tState{
-		stateRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "state", "pull"),
+		stateRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, runner.Options{}.WithSuppressErrOutput(true), "state", "pull"),
 	}
 }

@@ -1,13 +1,16 @@
 package runner
 
 import (
-	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/xmidt-org/carousel/pkg/model"
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
+	"strings"
+	"syscall"
 )
 
 var (
@@ -26,81 +29,101 @@ type Runnable interface {
 }
 
 type cmdRunner struct {
-	cmd          exec.Cmd
-	attachStdOut bool
-	attachStdErr bool
+	commandString string
+	cmd           exec.Cmd
+	options       Options
 }
 
 func (c *cmdRunner) String() string {
-	return c.cmd.String()
+	return c.commandString
 }
 
 func (c *cmdRunner) Output() ([]byte, error) {
-	// todo: add logic for sending to stdout as well.
 	copyCMD := c.cmd
-	stdout, err := copyCMD.StdoutPipe()
-	if err != nil {
-		return []byte{}, fmt.Errorf("%w: %v", errGetStdout, err)
-	}
-	stderr, err := copyCMD.StderrPipe()
-	if err != nil {
-		return []byte{}, fmt.Errorf("%w: %v", errGetStderr, err)
-	}
-	rd := bufio.NewReader(stdout)
-	ed := bufio.NewReader(stderr)
+	var stdOutBuf bytes.Buffer
+	var stdErrBuf bytes.Buffer
 
-	err = copyCMD.Start()
-	if err != nil {
-		return []byte{}, fmt.Errorf("%w: %v", errStartCMDFailure, err)
+	var errWriter io.Writer
+	var outWriter io.Writer
+
+	if c.options.SuppressErrOutput {
+		errWriter = io.MultiWriter(&stdErrBuf)
+	} else {
+		errWriter = io.MultiWriter(os.Stderr, &stdErrBuf)
+	}
+	if c.options.ShowOutput {
+		outWriter = io.MultiWriter(os.Stdout, &stdOutBuf)
+	} else {
+		outWriter = io.MultiWriter(&stdOutBuf)
+	}
+	copyCMD.Stdout = outWriter
+	copyCMD.Stderr = errWriter
+
+	if err := copyCMD.Start(); err != nil {
+		// bad path, binary not executable, &c
+		return nil, err
 	}
 
-	stdOutData := make([]byte, 0)
+	// Make sure to forward signals to the subcommand.
+	cmdChannel := make(chan error) // used for closing the signals forwarder goroutine
+	signalChannel := make(chan os.Signal, 1)
+	signal.Notify(signalChannel, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
 		for {
-			str, err := rd.ReadString('\n')
-			if err != nil {
-				if !errors.Is(err, io.EOF) {
-					fmt.Fprint(os.Stderr, "Runnable read stdout error: ", err)
-				}
+			select {
+			case s := <-signalChannel:
+				copyCMD.Process.Signal(s)
+			case <-cmdChannel:
 				return
 			}
-			if c.attachStdOut {
-				fmt.Fprint(os.Stdout, str)
-			}
-			stdOutData = append(stdOutData, []byte(str)...)
 		}
 	}()
-
-	stdErrData := make([]byte, 0)
-	go func() {
-		for {
-			str, err := ed.ReadString('\n')
-			if err != nil {
-				if !errors.Is(err, io.EOF) {
-					fmt.Fprintln(os.Stderr, "Runnable read stderr error: ", err)
-				}
-				return
-			}
-			if c.attachStdErr {
-				fmt.Fprint(os.Stderr, str)
-			}
-
-			stdErrData = append(stdErrData, []byte(str)...)
-		}
+	defer func() {
+		signal.Stop(signalChannel)
+		close(signalChannel)
 	}()
-	err = copyCMD.Wait()
+
+	err := copyCMD.Wait()
+	cmdChannel <- err
+
 	if err != nil {
-		return stdOutData, ExitError{
+		return stdOutBuf.Bytes(), ExitError{
 			CapturedError:       err,
-			CapturedErrorOutput: stdErrData,
+			CapturedErrorOutput: stdErrBuf.Bytes(),
 		}
 	}
-	return stdOutData, nil
+
+	return stdOutBuf.Bytes(), nil
+}
+
+type Options struct {
+	// Whether to attach stdin configuration. assume false
+	Interactive bool
+
+	// Whether to attach stdout configuration. assume false aka hide output
+	ShowOutput bool
+
+	// Whether to attach stdout configuration. assume false aka show err output
+	SuppressErrOutput bool
+}
+
+func (o Options) WithInteractive(interactive bool) Options {
+	o.Interactive = interactive
+	return o
+}
+
+func (o Options) WithShowOutput(showOutput bool) Options {
+	o.ShowOutput = showOutput
+	return o
+}
+func (o Options) WithSuppressErrOutput(suppressErrOutput bool) Options {
+	o.SuppressErrOutput = suppressErrOutput
+	return o
 }
 
 // NewCMDRunner builds an exec.Cmd specific Runnable.
 // on each run the exec.Cmd is copied so it can be ran again
-func NewCMDRunner(dir, binary string, attachStdin bool, attachStdOut bool, attachStdErr bool, args ...string) Runnable {
+func NewCMDRunner(dir, binary string, options Options, args ...string) Runnable {
 	if binary == "" {
 		// TODO: If we support more than terraform, the config should be validated somewhere.
 		binary = "terraform"
@@ -116,14 +139,14 @@ func NewCMDRunner(dir, binary string, attachStdin bool, attachStdOut bool, attac
 	}
 	cmd.Dir = workingDir
 
-	if attachStdin {
+	if options.Interactive {
 		cmd.Stdin = os.Stdin
 	}
 
 	return &cmdRunner{
-		cmd:          *cmd,
-		attachStdOut: attachStdOut,
-		attachStdErr: attachStdErr,
+		commandString: strings.Join(append([]string{binary}, args...), " "),
+		cmd:           *cmd,
+		options:       options,
 	}
 }
 
@@ -132,6 +155,7 @@ func NewCMDRunner(dir, binary string, attachStdin bool, attachStdOut bool, attac
 func AddEnvironment(runner Runnable, prefix string, environment []model.ValuePair) Runnable {
 	if cRun, ok := runner.(*cmdRunner); ok {
 		for _, pair := range environment {
+			cRun.commandString = fmt.Sprintf("%s%s=xxxx", prefix, pair.Key) + cRun.commandString
 			cRun.cmd.Env = append(cRun.cmd.Env, fmt.Sprintf("%s%s=%s", prefix, pair.Key, pair.Value))
 		}
 		return cRun
@@ -150,4 +174,12 @@ func (e ExitError) Error() string {
 
 func (e ExitError) Unwrap() error {
 	return e.CapturedError
+}
+
+func (e ExitError) GetCode() int {
+	var exitErr *exec.ExitError
+	if errors.As(e.CapturedError, &exitErr) {
+		return exitErr.Sys().(syscall.WaitStatus).ExitStatus()
+	}
+	return 0
 }

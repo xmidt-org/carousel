@@ -71,14 +71,14 @@ func (t *tSelectWorkspace) SelectWorkspace(workspace string) error {
 // BuildStateDeterminer builds a terraform specific WorkspaceSelecter.
 func BuildSelectWorkspaceRunner(config model.BinaryConfig) controller.WorkspaceSelecter {
 	return &tSelectWorkspace{
-		initRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "init"),
-		showRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "workspace", "show"),
-		listRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, false, "workspace", "list"),
+		initRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, runner.Options{}, "init"),
+		showRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, runner.Options{}.WithSuppressErrOutput(true), "workspace", "show"),
+		listRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, runner.Options{}.WithSuppressErrOutput(true), "workspace", "list"),
 		selectWorkspaceRunner: func(workspace string) runner.Runnable {
-			return runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "workspace", "select", workspace)
+			return runner.NewCMDRunner(config.WorkingDirectory, config.Binary, runner.Options{}, "workspace", "select", workspace)
 		},
 		newWorkspaceRunner: func(workspace string) runner.Runnable {
-			return runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "workspace", "new", workspace)
+			return runner.NewCMDRunner(config.WorkingDirectory, config.Binary, runner.Options{}, "workspace", "new", workspace)
 		},
 	}
 }

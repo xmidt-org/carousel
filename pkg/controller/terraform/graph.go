@@ -72,6 +72,6 @@ LOOP:
 func BuildClusterGraphRunner(getter controller.ClusterGetter, config model.BinaryConfig) controller.ClusterGraph {
 	return &tGraph{
 		getter:     getter,
-		listRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, false, false, true, "state", "list"),
+		listRunner: runner.NewCMDRunner(config.WorkingDirectory, config.Binary, runner.Options{}, "state", "list"),
 	}
 }

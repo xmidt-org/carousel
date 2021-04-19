@@ -38,7 +38,11 @@ func (t *tTransition) CreateApply(target model.ClusterState, step model.Step) ru
 		cmdArgs = append(cmdArgs, "-var", fmt.Sprintf("%s=%s", elem.Key, elem.Value))
 	}
 
-	r := runner.NewCMDRunner(t.config.WorkingDirectory, t.config.Binary, false, t.transitionConfig.AttachStdOut, t.transitionConfig.AttachStdErr, cmdArgs...)
+	runConfig := runner.Options{
+		ShowOutput:        t.transitionConfig.AttachStdOut,
+		SuppressErrOutput: !t.transitionConfig.AttachStdErr,
+	}
+	r := runner.NewCMDRunner(t.config.WorkingDirectory, t.config.Binary, runConfig, cmdArgs...)
 	r = runner.AddEnvironment(r, "TF_VAR_", t.config.PrivateArgs)
 	r = runner.AddEnvironment(r, "", t.config.Environment)
 

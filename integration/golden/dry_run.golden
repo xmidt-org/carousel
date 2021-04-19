@@ -1,7 +1,7 @@
 not checking hosts
-/usr/bin/terraform apply --auto-approve -var versionBlueCount=0 -var versionBlue=0.3.1 -var versionGreenCount=2 -var versionGreen=0.1.0
-/usr/bin/terraform apply --auto-approve -var versionBlueCount=1 -var versionBlue=0.3.1 -var versionGreenCount=2 -var versionGreen=0.1.0
-/usr/bin/terraform apply --auto-approve -var versionBlueCount=1 -var versionBlue=0.3.1 -var versionGreenCount=1 -var versionGreen=0.1.0
-/usr/bin/terraform apply --auto-approve -var versionBlueCount=2 -var versionBlue=0.3.1 -var versionGreenCount=1 -var versionGreen=0.1.0
-/usr/bin/terraform apply --auto-approve -var versionBlueCount=2 -var versionBlue=0.3.1 -var versionGreenCount=0 -var versionGreen=0.1.0
-/usr/bin/terraform apply --auto-approve -var versionBlueCount=3 -var versionBlue=0.3.1 -var versionGreenCount=0 -var versionGreen=0.1.0
+terraform apply --auto-approve -var versionBlueCount=0 -var versionBlue=0.3.1 -var versionGreenCount=2 -var versionGreen=0.1.0
+terraform apply --auto-approve -var versionBlueCount=1 -var versionBlue=0.3.1 -var versionGreenCount=2 -var versionGreen=0.1.0
+terraform apply --auto-approve -var versionBlueCount=1 -var versionBlue=0.3.1 -var versionGreenCount=1 -var versionGreen=0.1.0
+terraform apply --auto-approve -var versionBlueCount=2 -var versionBlue=0.3.1 -var versionGreenCount=1 -var versionGreen=0.1.0
+terraform apply --auto-approve -var versionBlueCount=2 -var versionBlue=0.3.1 -var versionGreenCount=0 -var versionGreen=0.1.0
+terraform apply --auto-approve -var versionBlueCount=3 -var versionBlue=0.3.1 -var versionGreenCount=0 -var versionGreen=0.1.0
