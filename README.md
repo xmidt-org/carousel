@@ -2,13 +2,13 @@
 
 the iac wrapper that will continue going in a circle to deploy servers.
 
-[![Build Status](https://travis-ci.com/xmidt-org/carousel.svg?branch=main)](https://travis-ci.com/xmidt-org/carousel)
+[![Build Status](https://github.com/xmidt-org/carousel/actions/workflows/ci.yml/badge.svg)](https://github.com/xmidt-org/carousel/actions/workflows/ci.yml)
+[![Dependency Updateer](https://github.com/xmidt-org/carousel/actions/workflows/updater.yml/badge.svg)](https://github.com/xmidt-org/carousel/actions/workflows/updater.yml)
 [![codecov.io](http://codecov.io/github/xmidt-org/carousel/coverage.svg?branch=main)](http://codecov.io/github/xmidt-org/carousel?branch=main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/xmidt-org/carousel)](https://goreportcard.com/report/github.com/xmidt-org/carousel)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=xmidt-org_carousel&metric=alert_status)](https://sonarcloud.io/dashboard?id=xmidt-org_carousel)
 [![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/xmidt-org/carousel/blob/main/LICENSE)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=xmidt-org_PROJECT&metric=alert_status)](https://sonarcloud.io/dashboard?id=xmidt-org_PROJECT)
-[![GitHub release](https://img.shields.io/github/release/xmidt-org/carousel.svg)](CHANGELOG.md)
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/xmidt-org/carousel)](https://pkg.go.dev/github.com/xmidt-org/carousel)
+[![GitHub Release](https://img.shields.io/github/release/xmidt-org/carousel.svg)](CHANGELOG.md)
 
 ## Summary
 
