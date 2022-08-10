@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/blang/semver/v4 v4.0.0
-	github.com/go-kit/kit v0.10.0
+	github.com/go-kit/kit v0.12.0
 	github.com/hashicorp/terraform v0.14.10
 	github.com/kr/pretty v0.3.0
 	github.com/mitchellh/cli v1.1.4
