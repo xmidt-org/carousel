@@ -1,10 +1,11 @@
-package main
+package example
 
 import (
 	"fmt"
-	"github.com/xmidt-org/carousel/pkg/carousel"
 	"regexp"
 	"strconv"
+
+	"github.com/xmidt-org/carousel/pkg/carousel"
 )
 
 var hostnameRegex = regexp.MustCompile(`^[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$`)
