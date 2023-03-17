@@ -1,10 +1,11 @@
-package main
+package example
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/xmidt-org/carousel/pkg/carousel"
 	"plugin"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/xmidt-org/carousel/pkg/carousel"
 )
 
 func TestCheckHost(t *testing.T) {
