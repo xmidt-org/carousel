@@ -1,5 +1,7 @@
 # carousel
 
+This project has been archived. No future work will be done here.
+
 the iac wrapper that will continue going in a circle to deploy servers.
 
 [![Build Status](https://travis-ci.com/xmidt-org/carousel.svg?branch=main)](https://travis-ci.com/xmidt-org/carousel)
